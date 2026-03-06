@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Loan Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white: #ffffff;
+      --gray-50: #f8f9fa;
+      --gray-100: #f1f3f5;
+      --gray-200: #e9ecef;
+      --gray-400: #ced4da;
+      --gray-500: #adb5bd;
+      --gray-600: #6c757d;
+      --gray-800: #343a40;
+      --gray-900: #212529;
+      --green: #2d9b5a;
+      --green-dark: #237a47;
+      --green-light: #e8f7ef;
+      --green-mid: #b7e4ca;
+      --accent: #1a6b3c;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      padding: 40px 20px 60px;
+    }
+
+    .page-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 700;
+      color: var(--gray-900);
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--gray-600);
+      font-size: 0.95rem;
+      font-weight: 400;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 36px;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin-bottom: 24px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--gray-800);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix, .input-suffix {
+      position: absolute;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--gray-500);
+      pointer-events: none;
+    }
+
+    .input-prefix { left: 14px; }
+    .input-suffix { right: 14px; }
+
+    input[type="number"] {
+      width: 100%;
+      background: var(--gray-100);
+      border: 1.5px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--gray-900);
+      outline: none;
+      transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus {
+      background: var(--white);
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(45,155,90,0.12);
+    }
+
+    .has-prefix input { padding-left: 30px; }
+    .has-suffix input { padding-right: 42px; }
+
+    .range-wrap {
+      margin-top: 4px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--green);
+      cursor: pointer;
+      height: 4px;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--gray-500);
+      margin-top: 4px;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 28px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 15px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+      box-shadow: 0 2px 8px rgba(45,155,90,0.25);
+    }
+
+    .btn:hover {
+      background: var(--green-dark);
+      box-shadow: 0 4px 16px rgba(45,155,90,0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    /* Results */
+    .results-section {
+      display: none;
+      animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .results-section.visible { display: block; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .monthly-hero {
+      background: linear-gradient(135deg, #1e7a43 0%, #2d9b5a 60%, #3ab56a 100%);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      color: #fff;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .monthly-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .monthly-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -20px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .hero-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+
+    .hero-amount {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(2.2rem, 6vw, 3.2rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .hero-meta {
+      font-size: 0.85rem;
+      opacity: 0.75;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .summary-item {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+    }
+
+    .summary-item-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      margin-bottom: 6px;
+    }
+
+    .summary-item-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--gray-900);
+    }
+
+    /* Roundup Cards */
+    .roundup-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin-bottom: 16px;
+    }
+
+    .roundup-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .roundup-card {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .roundup-card:hover {
+      border-color: var(--green-mid);
+      box-shadow: 0 4px 16px rgba(45,155,90,0.08);
+    }
+
+    .roundup-card-badge {
+      display: inline-block;
+      background: var(--green-light);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    .roundup-card-payment {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--green);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .roundup-card-extra {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      margin-bottom: 14px;
+    }
+
+    .roundup-divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin-bottom: 14px;
+    }
+
+    .roundup-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--gray-600);
+      margin-bottom: 6px;
+    }
+
+    .roundup-stat:last-child { margin-bottom: 0; }
+
+    .roundup-stat strong {
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .savings-pill {
+      background: var(--green-light);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 520px) {
+      .card { padding: 24px 20px; }
+      .input-grid { grid-template-columns: 1fr; }
+      .input-group.full { grid-column: auto; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .roundup-cards { grid-template-columns: 1fr; }
+      .monthly-hero { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+  <h1>Student Loan Calculator</h1>
+  <p class="subtitle">Estimate your monthly payments and find your fastest payoff path.</p>
+
+  <div class="card">
+    <p class="card-title">Loan Details</p>
+    <div class="input-grid">
+
+      <div class="input-group full">
+        <label for="loanAmount">Total Loan Amount</label>
+        <div class="input-wrap has-prefix">
+          <span class="input-prefix">$</span>
+          <input type="number" id="loanAmount" value="35000" min="1000" max="500000" step="500" />
+        </div>
+        <div class="range-wrap">
+          <input type="range" id="loanAmountRange" min="1000" max="200000" step="500" value="35000" />
+          <div class="range-labels"><span>$1,000</span><span>$200,000</span></div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="interestRate">Annual Interest Rate</label>
+        <div class="input-wrap has-suffix">
+          <input type="number" id="interestRate" value="5.5" min="0.1" max="30" step="0.1" />
+          <span class="input-suffix">%</span>
+        </div>
+        <div class="range-wrap">
+          <input type="range" id="interestRateRange" min="0.1" max="20" step="0.1" value="5.5" />
+          <div class="range-labels"><span>0.1%</span><span>20%</span></div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="loanTerm">Loan Term</label>
+        <div class="input-wrap has-suffix">
+          <input type="number" id="loanTerm" value="10" min="1" max="30" step="1" />
+          <span class="input-suffix">yrs</span>
+        </div>
+        <div class="range-wrap">
+          <input type="range" id="loanTermRange" min="1" max="30" step="1" value="10" />
+          <div class="range-labels"><span>1 yr</span><span>30 yrs</span></div>
+        </div>
+      </div>
+
+    </div>
+    <button class="btn" onclick="calculate()">Calculate My Payment</button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="results">
+
+    <div class="monthly-hero">
+      <div class="hero-label">Monthly Payment</div>
+      <div class="hero-amount" id="monthlyPayment">—</div>
+      <div class="hero-meta" id="heroMeta">—</div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-item-label">Total Paid</div>
+        <div class="summary-item-value" id="totalPaid">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-item-label">Total Interest</div>
+        <div class="summary-item-value" id="totalInterest">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="roundup-title">💡 Pay it off faster — round up your payment</p>
+      <div class="roundup-cards">
+
+        <div class="roundup-card">
+          <span class="roundup-card-badge">Round Up $50</span>
+          <div class="roundup-card-payment" id="round50">—</div>
+          <div class="roundup-card-extra" id="round50Extra">—</div>
+          <div class="roundup-divider"></div>
+          <div class="roundup-stat">
+            <span>Payoff time</span>
+            <strong id="round50Term">—</strong>
+          </div>
+          <div class="roundup-stat">
+            <span>Time saved</span>
+            <strong id="round50Saved">—</strong>
+          </div>
+          <div class="roundup-stat">
+            <span>Interest saved</span>
+            <span class="savings-pill" id="round50IntSaved">—</span>
+          </div>
+        </div>
+
+        <div class="roundup-card">
+          <span class="roundup-card-badge">Round Up $100</span>
+          <div class="roundup-card-payment" id="round100">—</div>
+          <div class="roundup-card-extra" id="round100Extra">—</div>
+          <div class="roundup-divider"></div>
+          <div class="roundup-stat">
+            <span>Payoff time</span>
+            <strong id="round100Term">—</strong>
+          </div>
+          <div class="roundup-stat">
+            <span>Time saved</span>
+            <strong id="round100Saved">—</strong>
+          </div>
+          <div class="roundup-stat">
+            <span>Interest saved</span>
+            <span class="savings-pill" id="round100IntSaved">—</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Sync range sliders with number inputs
+  const pairs = [
+    ['loanAmount', 'loanAmountRange'],
+    ['interestRate', 'interestRateRange'],
+    ['loanTerm', 'loanTermRange'],
+  ];
+
+  pairs.forEach(([inputId, rangeId]) => {
+    const input = document.getElementById(inputId);
+    const range = document.getElementById(rangeId);
+    input.addEventListener('input', () => { range.value = input.value; });
+    range.addEventListener('input', () => { input.value = range.value; });
+  });
+
+  function fmt(n) {
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fmtInt(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function calcMonthly(principal, annualRate, months) {
+    const r = annualRate / 100 / 12;
+    if (r === 0) return principal / months;
+    return principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+  }
+
+  // Calculate actual payoff months given a fixed monthly payment
+  function payoffMonths(principal, annualRate, monthlyPayment) {
+    const r = annualRate / 100 / 12;
+    if (r === 0) return Math.ceil(principal / monthlyPayment);
+    if (monthlyPayment <= principal * r) return Infinity; // payment doesn't cover interest
+    return Math.ceil(-Math.log(1 - (principal * r) / monthlyPayment) / Math.log(1 + r));
+  }
+
+  function totalInterestFor(principal, annualRate, monthlyPayment, months) {
+    return monthlyPayment * months - principal;
+  }
+
+  function formatMonths(m) {
+    if (!isFinite(m)) return 'Never';
+    const y = Math.floor(m / 12);
+    const mo = m % 12;
+    if (y === 0) return mo + ' mo';
+    if (mo === 0) return y + (y === 1 ? ' yr' : ' yrs');
+    return y + (y === 1 ? ' yr ' : ' yrs ') + mo + ' mo';
+  }
+
+  function monthsDiff(m1, m2) {
+    const diff = m1 - m2;
+    if (diff <= 0) return '—';
+    return formatMonths(diff);
+  }
+
+  function roundUpTo(value, multiple) {
+    return Math.ceil(value / multiple) * multiple;
+  }
+
+  function calculate() {
+    const principal = parseFloat(document.getElementById('loanAmount').value);
+    const rate = parseFloat(document.getElementById('interestRate').value);
+    const years = parseFloat(document.getElementById('loanTerm').value);
+
+    if (!principal || !rate || !years || principal <= 0 || rate <= 0 || years <= 0) {
+      alert('Please enter valid values for all fields.');
+      return;
+    }
+
+    const months = Math.round(years * 12);
+    const monthly = calcMonthly(principal, rate, months);
+    const totalPaid = monthly * months;
+    const totalInt = totalPaid - principal;
+
+    // Base results
+    document.getElementById('monthlyPayment').textContent = fmt(monthly);
+    document.getElementById('heroMeta').textContent =
+      `${years} year term · ${rate}% APR · ${fmt(principal)} loan`;
+    document.getElementById('totalPaid').textContent = fmtInt(totalPaid);
+    document.getElementById('totalInterest').textContent = fmtInt(totalInt);
+
+    // Round-up scenarios
+    const r50  = roundUpTo(monthly, 50);
+    const r100 = roundUpTo(monthly, 100);
+
+    [
+      { suffix: '50', payment: r50 },
+      { suffix: '100', payment: r100 },
+    ].forEach(({ suffix, payment }) => {
+      const extraPerMonth = payment - monthly;
+      const newMonths = payoffMonths(principal, rate, payment);
+      const newInterest = totalInterestFor(principal, rate, payment, newMonths);
+      const intSaved = totalInt - newInterest;
+      const timeSaved = monthsDiff(months, newMonths);
+
+      document.getElementById(`round${suffix}`).textContent = fmt(payment);
+      document.getElementById(`round${suffix}Extra`).textContent =
+        `+${fmt(extraPerMonth)} extra / month`;
+      document.getElementById(`round${suffix}Term`).textContent = formatMonths(newMonths);
+      document.getElementById(`round${suffix}Saved`).textContent = timeSaved;
+      document.getElementById(`round${suffix}IntSaved`).textContent =
+        intSaved > 0 ? fmtInt(intSaved) : '$0';
+    });
+
+    const results = document.getElementById('results');
+    results.classList.remove('visible');
+    void results.offsetWidth; // reflow to re-trigger animation
+    results.classList.add('visible');
+  }
+
+  // Calculate on load with defaults
+  window.addEventListener('load', calculate);
+</script>
+</body>
+</html>
